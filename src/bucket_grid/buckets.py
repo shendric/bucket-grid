@@ -6,7 +6,14 @@
 __author__ = "Stefan Hendricks <stefan.hendricks@awi.de>"
 __all__ = ["BucketGrid"]
 
+from enum import StrEnum
+
 from easi_grid import Grid
+
+
+class OutOfBoundsBehavior(StrEnum):
+    IGNORE = "ignore"
+    ERROR = "error"
 
 
 class BucketGrid(object):
@@ -14,7 +21,11 @@ class BucketGrid(object):
     Class for gridding data into buckets.
     """
 
-    def __init__(self, grid_definition: Grid) -> None:
+    def __init__(
+            self,
+            grid_definition: Grid,
+            out_of_bounds_behavior: OutOfBoundsBehavior = OutOfBoundsBehavior.IGNORE
+    ) -> None:
         self.grid_definition = grid_definition
         self.buckets = self._create_buckets()
 
