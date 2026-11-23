@@ -34,6 +34,7 @@ class NumPoints(GridAnalysisMethod):
         return {
             "num_points": xr.DataArray(
                 np.full(shape, 0, dtype=np.uint32),
+                dims=["yc", "xc"],
                 name="num_points",
                 attrs={
                     "long_name": "Number of Points",

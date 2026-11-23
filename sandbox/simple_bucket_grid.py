@@ -91,9 +91,9 @@ class SurfaceTypeStatistics(GridAnalysisMethod):
         # Define the dataset structure here
 
         # Additional coordinate (surface_type) for the data array
-        surface_type_var = xr.Variable(
-            dims=("surface_type",),
-            data=np.array([0, 1, 2], dtype=np.int8),
+        surface_type_var = xr.DataArray(
+            np.array([0, 1, 2], dtype=np.uint8),
+            dims=["surface_type"],
             attrs={
                 "long_name": "Surface Type",
                 "valid_min": np.uint8(0),
@@ -102,22 +102,26 @@ class SurfaceTypeStatistics(GridAnalysisMethod):
                 "flag_meanings": "new_ice first_year_ice multi_year_ice",
             }
         )
-        data_array_default = callback.get_data_array_coords(
-            {"surface_type": ("surface_type", surface_type_var)},
-        )
+        data_array_default = callback.get_data_array_coords( )
 
         new_shape = (*shape, 3)  # Extend shape to include surface_type dimension
         return {
             "surface_type_fraction": xr.DataArray(
                 np.full(new_shape, np.nan, dtype=np.float32),
                 name="surface_type_fraction",
+                dims=["yc", "xc", "surface_type"],
                 attrs={
                     "long_name": "Surface Type Fractions",
                     "valid_min": np.float32(0.0),
                     "valid_max": np.float32(1.0),
                     "comments": "Fraction of each surface type in the grid cell"
                 },
-                **data_array_default
+                coords={
+                    "yc": data_array_default["coords"]["yc"],
+                    "xc": data_array_default["coords"]["xc"],
+                    "surface_type": surface_type_var
+                }
+
             )
         }
 
@@ -169,6 +173,7 @@ class CorrectPrediction(GridAnalysisMethod):
             "correct_prediction_fraction": xr.DataArray(
                 np.full(shape, np.nan, dtype=np.float32),
                 name="correct_prediction_fraction",
+                dims=["yc", "xc"],
                 attrs={
                     "long_name": "Correct Prediction Fraction",
                     "valid_min": np.float32(0.0),
@@ -224,6 +229,7 @@ class MedianTrueLabel(GridAnalysisMethod):
         return {
             "median_true_label": xr.DataArray(
                 np.full(shape, -1, dtype=np.int8),
+                dims=["yc", "xc"],
                 name="median_true_label",
                 attrs={
                     "long_name": "Median True Label",

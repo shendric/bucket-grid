@@ -8,6 +8,7 @@ __author__ = "Stefan Hendricks <stefan.hendricks@awi.de>"
 from typing import List, Type, Dict, Any, Optional, Union
 
 import xarray as xr
+from scipy.sparse import coo
 
 from bucket_grid.buckets import BucketGrid
 
@@ -26,7 +27,6 @@ class GridAnalysisData(object):
 
         :return: Initialized xarray.Dataset.
         """
-
         self.grid_data.get_lonlat_nc_vars()
         return xr.Dataset(
             attrs=self._get_default_attrs(),
@@ -57,8 +57,13 @@ class GridAnalysisData(object):
         :return: None, updates self.ds in place.
         """
         for name, data_array in new_data_arrays.items():
-            print(name)
+            # new_coords = list(set(data_array.coords.variables) - set(self.ds.coords.variables))
+            # # Manually set coords to ensure coords attributes are copied over
+            # if new_coords:
+            #     for coord_name in new_coords:
+            #         self.ds = self.ds.assign_coords(**{coord_name: data_array.coords[coord_name]})
             self.ds[name] = data_array
+
 
     def get_indices(self, target: str) -> List[tuple]:
         if target == "all":
@@ -72,12 +77,7 @@ class GridAnalysisData(object):
             self,
             additional_coords: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Dict[str, Any]]:
-        coords = dict(
-            coords={
-                "yc": ("yc", self.grid_data.yc_km),
-                "xc": ("xc", self.grid_data.xc_km),
-            },
-        )
+        coords = dict(coords=self.nc_coords.copy())
         if additional_coords:
             coords["coords"].update(additional_coords)
         return coords
