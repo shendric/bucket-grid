@@ -25,9 +25,9 @@ class NumPoints(GridAnalysisMethod):
 
     def init_return_data(self, shape: Tuple[int, int], callback: GridAnalysisData) -> Dict[str, xr.DataArray]:
         """
-        Initialize the xarray.Dataset for analysis results.
+        Initialize the xarray.Dataarrays for analysis results.
 
-        :return: Initialized xarray.Dataset.
+        :return: Initialized xarray.Dataarrays.
         """
         # Define the dataset structure here
         data_array_default = callback.get_data_array_coords()
@@ -61,6 +61,7 @@ class NumPoints(GridAnalysisMethod):
         :param ix:
         :param da_dict:
         :param callback:
-        :return:
+
+        :return: None, updates dataarray dictionary in place.
         """
         da_dict["num_points"].values[yj, ix] = float(len(points))
